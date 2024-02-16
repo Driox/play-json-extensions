@@ -1,6 +1,6 @@
 package ai.x.test.play.json
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import _root_.play.api.libs.json._
 
@@ -62,7 +62,7 @@ case class Ua( i: Int ) extends OP
 case class Unknown( json: JsValue ) extends OP
 case class Uzzzzzzz( s: String ) extends OP
 
-class PlayJsonExtensionsTest extends FunSuite {
+class PlayJsonExtensionsTest extends AnyFunSuite {
   test( "de/serialize symbol fields" ) {
     case class SymbolFieldsClass( ### :Int, $$$: Double, %%% : Boolean, -+-+ : Seq[Int] )
     implicit val fmt1 = Jsonx.formatCaseClass[SymbolFieldsClass]
@@ -332,7 +332,7 @@ abstract class JsonTestClasses {
   case class ClassOuter2( outer: List[ListOuter2] )
   object ClassOuter2 { implicit def jsonFormat = Jsonx.formatCaseClass[ClassOuter2] }
 }
-class JsonTests extends FunSuite {
+class JsonTests extends AnyFunSuite {
   test( "json optionWithNull" ) {
     object JsonTestClasses extends JsonTestClasses {
       implicit def option[A]( implicit reads: Reads[A] ): Reads[Option[A]] = implicits.optionWithNull[A]

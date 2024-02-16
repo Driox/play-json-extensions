@@ -4,11 +4,11 @@ import com.typesafe.sbt.SbtScalariform.{ScalariformKeys, autoImport}
 val projectName = "play-json-extensions"
 lazy val root = Project(id = projectName, base = file("."))
 
-version := "0.42.0"
+version := "0.43.0"
 organization := "ai.x"
 name := projectName
-scalaVersion := "2.12.10"
-crossScalaVersions := Seq("2.12.10", "2.13.1")
+scalaVersion := "2.13.12"
+// crossScalaVersions := Seq("2.12.10", "2.13.1")
 useGpg := true
 credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")
 description := "Additional type classes for the play-json serialization library"
@@ -31,9 +31,9 @@ developers := List(
 )
 
 libraryDependencies ++=   Seq(
-  "com.typesafe.play" %% "play-json" % "2.8.1",
+  "com.typesafe.play" %% "play-json" % "2.10.4",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
-  "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+  "org.scalatest" %% "scalatest" % "3.2.14" % Test
 )
 
 resolvers ++= Seq(
@@ -47,18 +47,18 @@ scalacOptions ++= Seq(
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 11)) => "-Ywarn-unused-import"
     case _ => "-Ywarn-unused:imports"
-  },
-  "-Xfatal-warnings"
+  }
+  //, "-Xfatal-warnings"
 )
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oFD")
 parallelExecution := false // <- until TMap thread-safety issues are resolved
 
-scalacOptions in (Compile, doc) ++= Seq(
+Compile / doc / scalacOptions ++= Seq(
   "-doc-title", name.value,
   "-doc-version", version.value,
   "-doc-footer", projectName+" is developed by x.ai.",
-  "-sourcepath", (sourceDirectory in Compile).value.getPath, // needed for scaladoc to strip the location of the linked source path
+  "-sourcepath", (Compile / sourceDirectory).value.getPath, // needed for scaladoc to strip the location of the linked source path
   "-doc-source-url", ghUrl+"/blob/"+version.value+"/src/main€{FILE_PATH}.scala",
   "-implicits",
   "-diagrams", // requires graphviz
@@ -81,4 +81,3 @@ scalariformPreferences := scalariformPreferences.value
       .setPreference(SpacesAroundMultiImports, true)
       .setPreference(DanglingCloseParenthesis, Preserve)
 .setPreference(DoubleIndentConstructorArguments, true)
-

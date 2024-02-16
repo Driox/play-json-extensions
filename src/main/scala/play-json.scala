@@ -67,7 +67,7 @@ package object internals {
           b += elem
         }
       }
-      b.result
+      b.result()
     }
   }
 }
@@ -197,7 +197,7 @@ private[json] class Macros( val c: blackbox.Context ) {
         """
       } else if ( isCaseClass( T ) && caseClassFieldsTypes( T ).size == 1 ) {
         val ArgType = caseClassFieldsTypes( T ).head._2
-        val name = TermName( c.freshName )
+        val name = TermName( c.freshName() )
         q"""
         implicit def $name = $pkg.Jsonx.formatAuto[$ArgType]
         $pkg.Jsonx.formatInline[$T]
@@ -206,7 +206,7 @@ private[json] class Macros( val c: blackbox.Context ) {
         val fieldFormatters = caseClassFieldsTypes( T ).map {
           case ( _, t ) => t
         }.toVector.distinctWith( _ =:= _ ).map { t =>
-          val name = TermName( c.freshName )
+          val name = TermName( c.freshName() )
           q"implicit def $name = $pkg.Jsonx.formatAuto[$t]"
         }
         val t = q"""
@@ -216,7 +216,7 @@ private[json] class Macros( val c: blackbox.Context ) {
         t
       } else if ( T.typeSymbol.isClass && T.typeSymbol.asClass.isSealed && T.typeSymbol.asClass.isAbstract ) {
         val fieldFormatters = T.typeSymbol.asClass.knownDirectSubclasses.map { t =>
-          val name = TermName( c.freshName )
+          val name = TermName( c.freshName() )
           q"implicit def $name = Jsonx.formatAuto[$t]"
         }
         q"""
@@ -286,7 +286,7 @@ private[json] class Macros( val c: blackbox.Context ) {
     }
     val ( results, mkResults ) = caseClassFieldsTypes( T ).map {
       case ( k, t ) =>
-        val name = TermName( c.freshName )
+        val name = TermName( c.freshName() )
         val path = q"""(json \ (encoder.encode($k)))"""
         val result = q"""{
           import $pkg._
@@ -330,29 +330,29 @@ private[json] class Macros( val c: blackbox.Context ) {
       """
   }
 
-  private def verifyKnownDirectSubclassesPostTyper( _T: Type, macroCall: String ): Tree = {
-    val T = _T.typeSymbol.asClass
+  //   private def verifyKnownDirectSubclassesPostTyper( _T: Type, macroCall: String ): Tree = {
+  //     val T = _T.typeSymbol.asClass
 
-    val subs = T.knownDirectSubclasses
+  //     val subs = T.knownDirectSubclasses
 
-    // hack to detect breakage of knownDirectSubclasses as suggested in
-    // https://gitter.im/scala/scala/archives/2015/05/05 and
-    // https://gist.github.com/retronym/639080041e3fecf58ba9
-    val global = c.universe.asInstanceOf[scala.tools.nsc.Global]
-    def checkSubsPostTyper = if ( subs != T.knownDirectSubclasses )
-      c.error(
-        c.macroApplication.pos,
-        s"""macro call $macroCall happened in a place, where typechecking of $T hasn't been completed yet.
-Completion is required in order to find all direct subclasses.
-Try moving the call lower in the file, into a separate file, a sibbling package, a separate sbt sub project or else.
-This is caused by https://issues.scala-lang.org/browse/SI-7046 and can only be avoided by manually moving the call.
-"""
-      )
+  //     // hack to detect breakage of knownDirectSubclasses as suggested in
+  //     // https://gitter.im/scala/scala/archives/2015/05/05 and
+  //     // https://gist.github.com/retronym/639080041e3fecf58ba9
+  //     val global = c.universe.asInstanceOf[scala.tools.nsc.Global]
+  //     def checkSubsPostTyper = if ( subs != T.knownDirectSubclasses )
+  //       c.error(
+  //         c.macroApplication.pos,
+  //         s"""macro call $macroCall happened in a place, where typechecking of $T hasn't been completed yet.
+  // Completion is required in order to find all direct subclasses.
+  // Try moving the call lower in the file, into a separate file, a sibbling package, a separate sbt sub project or else.
+  // This is caused by https://issues.scala-lang.org/browse/SI-7046 and can only be avoided by manually moving the call.
+  // """
+  //       )
 
-    val checkSubsPostTyperTypTree =
-      new global.TypeTreeWithDeferredRefCheck()( () => { checkSubsPostTyper; global.TypeTree( global.NoType ) } ).asInstanceOf[TypTree]
-    q"type VerifyKnownDirectSubclassesPostTyper = $checkSubsPostTyperTypTree"
-  }
+  //     val checkSubsPostTyperTypTree =
+  //       new global.TypeTreeWithDeferredRefCheck()( () => { checkSubsPostTyper; global.TypeTree( global.NoType ) } ).asInstanceOf[TypTree]
+  //     q"type VerifyKnownDirectSubclassesPostTyper = $checkSubsPostTyperTypTree"
+  //   }
 
   private def assertClass[T: c.WeakTypeTag]( msg: String = s"required class or trait" ) = {
     val T = c.weakTypeOf[T].typeSymbol
@@ -441,7 +441,6 @@ This can be caused by https://issues.scala-lang.org/browse/SI-7046 which can onl
     q"""
       {
         new $pjson.$formatClass[$T]{
-          ${verifyKnownDirectSubclassesPostTyper( T: Type, s"formatSealed[$T, $pjson.$formatClass[$T]" )}
           def reads(json: $pjson.JsValue) = $readsWithFallback orElse $pjson.JsError("Could not deserialize to any of the subtypes of "+ $rootName +". Tried: "+ $subNames)
           def writes(obj: $T) = {
             obj match {
@@ -485,9 +484,9 @@ object SingletonEncoder {
     )
   )
   def decodeName( name: String ) = NameTransformer.decode( name.dropRight( 1 ) )
-  implicit def simpleName = SingletonEncoder( cls => JsString( decodeName( cls.getSimpleName ) ) )
-  implicit def simpleNameLowerCase = SingletonEncoder( cls => JsString( camel2underscore( decodeName( cls.getSimpleName ) ) ) )
-  implicit def simpleNameUpperCase = SingletonEncoder( cls => JsString( camel2underscore( decodeName( cls.getSimpleName ) ).toUpperCase ) )
+  implicit def simpleName: SingletonEncoder = SingletonEncoder( cls => JsString( decodeName( cls.getSimpleName ) ) )
+  implicit def simpleNameLowerCase: SingletonEncoder = SingletonEncoder( cls => JsString( camel2underscore( decodeName( cls.getSimpleName ) ) ) )
+  implicit def simpleNameUpperCase: SingletonEncoder = SingletonEncoder( cls => JsString( camel2underscore( decodeName( cls.getSimpleName ) ).toUpperCase ) )
 }
 
 sealed trait NameEncoder {

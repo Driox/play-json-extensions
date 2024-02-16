@@ -13,11 +13,12 @@ libraryDependencies += "ai.x" %% "play-json-extensions" % "0.42.0"
 
 | Play-json | Scala            | group id    | latest version       |
 | --------- | ---------------- | ------------| -------------------- |
+| 2.10.x    | 2.13             | `ai.x`      | 0.43.0               |
 | 2.8.x     | 2.12, 2.13       | `ai.x`      | 0.42.0               |
 | 2.7.x     | 2.11, 2.12, 2.13 | `ai.x`      | 0.40.2               |
 | 2.5.x     | 2.11             | `ai.x`      | 0.9.0                |
 | 2.4.x     | 2.11             | `org.cvogt` | 0.6.1                |
-| 2.3.x     | 2.11             | `org.cvogt` | 0.2                  |     
+| 2.3.x     | 2.11             | `org.cvogt` | 0.2                  |
 
 ### all versions and scaladoc
 
@@ -70,7 +71,7 @@ libraryDependencies += "ai.x" %% "play-json-extensions" % "0.42.0"
     implicit lazy val format = Jsonx.formatCaseClassUseDefaults[Bar]
     assert(Bar("asd",6) == Json.parse("""{"s":"asd"}""").validate[Bar].get)
 ```
-  
+
 #### De-/Serialize tuples
 
 ```scala
@@ -109,7 +110,7 @@ libraryDependencies += "ai.x" %% "play-json-extensions" % "0.42.0"
     json.validate[Option[String]] // JsError: "'s' is undefined on object: {}"
     json.validateOpt[String] == JsResult(None) // manual alternative (provided here, built-into play-json >= 2.4.2)
 ```
-    
+
 #### automatic formatting of sealed traits, delegating to formatters of the subclasses
 #### formatSealed uses orElse of subclass Reads in random order, careful in case of ambiguities of field-class correspondances
 
@@ -184,12 +185,12 @@ libraryDependencies += "ai.x" %% "play-json-extensions" % "0.42.0"
     case class Foo(_1:Bar,_11:SomeAdt, _2:String,_3:Int,_4:Int,_5:Int,_21:Int,_22:Int,_23:Int,_24:Int,_25:Int,_31:Int,_32:Int,_33:Int,_34:Int,_35:Int,_41:Int,_42:Int,_43:Int,_44:Int,_45:Int,_51:Int,_52:Int,_53:Int,_54:Int,_55:Int)
     val foo = Foo(Bar(5,1.0f, Baz, Some(4): Option[Int]),A,"sdf",3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5)
     val foo2 = Foo(Bar(5,1.0f, Baz, None: Option[Int]),X(5,"x"),"sdf",3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5)
-    
+
     import ai.x.play.json.implicits.optionWithNull
     val fmt2: Format[Foo] = Jsonx.formatAuto[Foo] // not implicit to avoid infinite recursion
 
     {
-      implicit lazy val fmt3: Format[Foo] = fmt2    
+      implicit lazy val fmt3: Format[Foo] = fmt2
       val json = Json.toJson( foo )
       assert(foo === json.as[Foo])
       val json2 = Json.toJson( foo2 )

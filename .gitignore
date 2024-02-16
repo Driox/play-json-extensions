@@ -3,3 +3,6 @@
 target
 .metals/
 .idea/
+.bsp
+.bloop
+metals.sbt
