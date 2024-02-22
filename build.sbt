@@ -14,6 +14,7 @@ credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")
 description := "Additional type classes for the play-json serialization library"
 organizationName := "x.ai - Magically schedule meetings"
 
+
 val ghProject = "xdotai/"+projectName
 val ghUrl = url( "https://github.com/" + ghProject )
 
@@ -36,10 +37,8 @@ libraryDependencies ++=   Seq(
   "org.scalatest" %% "scalatest" % "3.2.14" % Test
 )
 
-resolvers ++= Seq(
-  Resolver.sonatypeRepo("releases"),
-  Resolver.sonatypeRepo("snapshots")
-)
+resolvers ++= Resolver.sonatypeOssRepos("releases")
+resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 scalacOptions ++= Seq(
   "-feature", "-deprecation", "-unchecked",
@@ -51,7 +50,7 @@ scalacOptions ++= Seq(
   //, "-Xfatal-warnings"
 )
 
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oFD")
+Test / testOptions  += Tests.Argument(TestFrameworks.ScalaTest, "-oFD")
 parallelExecution := false // <- until TMap thread-safety issues are resolved
 
 Compile / doc / scalacOptions ++= Seq(
@@ -68,7 +67,7 @@ Compile / doc / scalacOptions ++= Seq(
 publishTo := sonatypePublishTo.value
 
 publishMavenStyle := true
-publishArtifact in Test := false
+Test / publishArtifact := false
 pomIncludeRepository := { _ => false }
 
 scalariformPreferences := scalariformPreferences.value
