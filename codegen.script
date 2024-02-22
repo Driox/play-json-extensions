@@ -7,7 +7,7 @@ def valsWithTypes(i: Int) = {
 
 def tuple(i: Int) = {
   s"""
-  implicit def formatTuple$i[${idents(i,"T") map (_+": Format") mkString ","}] = new Format[(${types(i)})]{
+  implicit def formatTuple$i[${idents(i,"T") map (_+": Format") mkString ","}]:Format[(${types(i)})] = new Format[(${types(i)})]{
     def reads(json: JsValue) = json.validate[JsArray].flatMap{
       case JsArray(scala.collection.Seq(${vals(i)})) =>
         val (${vals(i,"r")}) =
