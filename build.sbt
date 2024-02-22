@@ -4,18 +4,17 @@ import com.typesafe.sbt.SbtScalariform.{ScalariformKeys, autoImport}
 val projectName = "play-json-extensions"
 lazy val root = Project(id = projectName, base = file("."))
 
-version := "0.43.0"
-organization := "ai.x"
+version := "0.43.0-SNAPSHOT"
+organization := "com.particeep"
 name := projectName
 scalaVersion := "2.13.12"
 // crossScalaVersions := Seq("2.12.10", "2.13.1")
 useGpg := true
 credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")
 description := "Additional type classes for the play-json serialization library"
-organizationName := "x.ai - Magically schedule meetings"
+organizationName := "com.particeep - Particeep"
 
-
-val ghProject = "xdotai/"+projectName
+val ghProject = "Particeep/"+projectName
 val ghUrl = url( "https://github.com/" + ghProject )
 
 homepage := Some( ghUrl )
@@ -28,7 +27,8 @@ scmInfo := Some(
   ScmInfo( ghUrl, "git@github.com:" + ghProject + ".git" )
 )
 developers := List(
-  Developer("cvogt", "Jan Christopher Vogt", "@cvogt", url("https://github.com/cvogt"))
+  Developer("cvogt", "Jan Christopher Vogt", "@cvogt", url("https://github.com/cvogt")),
+  Developer("driox", "Adrien Crovetto", "@Driox", url("https://github.com/Driox"))
 )
 
 libraryDependencies ++=   Seq(
@@ -41,13 +41,12 @@ resolvers ++= Resolver.sonatypeOssRepos("releases")
 resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 scalacOptions ++= Seq(
-  "-feature", "-deprecation", "-unchecked",
+  "-feature",
+  "-deprecation",
+  "-unchecked",
   "-language:experimental.macros",
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 11)) => "-Ywarn-unused-import"
-    case _ => "-Ywarn-unused:imports"
-  }
-  //, "-Xfatal-warnings"
+  "-Ywarn-unused:imports",
+  "-Xfatal-warnings"
 )
 
 Test / testOptions  += Tests.Argument(TestFrameworks.ScalaTest, "-oFD")
@@ -56,7 +55,7 @@ parallelExecution := false // <- until TMap thread-safety issues are resolved
 Compile / doc / scalacOptions ++= Seq(
   "-doc-title", name.value,
   "-doc-version", version.value,
-  "-doc-footer", projectName+" is developed by x.ai.",
+  "-doc-footer", projectName+" is developed by "+organizationName,
   "-sourcepath", (Compile / sourceDirectory).value.getPath, // needed for scaladoc to strip the location of the linked source path
   "-doc-source-url", ghUrl+"/blob/"+version.value+"/src/main€{FILE_PATH}.scala",
   "-implicits",
@@ -71,12 +70,12 @@ Test / publishArtifact := false
 pomIncludeRepository := { _ => false }
 
 scalariformPreferences := scalariformPreferences.value
-      .setPreference(AlignParameters, true)
-      .setPreference(AlignArguments, true)
-      .setPreference(AlignSingleLineCaseStatements, true)
-      .setPreference(MultilineScaladocCommentsStartOnFirstLine, true)
-      .setPreference(SpaceInsideParentheses, true)
-      .setPreference(SpacesWithinPatternBinders, true)
-      .setPreference(SpacesAroundMultiImports, true)
-      .setPreference(DanglingCloseParenthesis, Preserve)
-.setPreference(DoubleIndentConstructorArguments, true)
+  .setPreference(AlignParameters, true)
+  .setPreference(AlignArguments, true)
+  .setPreference(AlignSingleLineCaseStatements, true)
+  .setPreference(MultilineScaladocCommentsStartOnFirstLine, true)
+  .setPreference(SpaceInsideParentheses, true)
+  .setPreference(SpacesWithinPatternBinders, true)
+  .setPreference(SpacesAroundMultiImports, true)
+  .setPreference(DanglingCloseParenthesis, Preserve)
+  .setPreference(DoubleIndentConstructorArguments, true)
