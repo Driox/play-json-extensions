@@ -4,7 +4,7 @@ import com.typesafe.sbt.SbtScalariform.{ScalariformKeys, autoImport}
 val projectName = "play-json-extensions"
 lazy val root = Project(id = projectName, base = file("."))
 
-version := "0.43.0-SNAPSHOT"
+version := "0.43.0"
 organization := "com.particeep"
 name := projectName
 scalaVersion := "2.13.12"
@@ -14,12 +14,18 @@ credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")
 description := "Additional type classes for the play-json serialization library"
 organizationName := "com.particeep - Particeep"
 
+// Your profile name of the sonatype account. The default is the same with the organization value
+sonatypeProfileName := "com.particeep"
+
+// To sync with Maven central, you need to supply the following information:
+publishMavenStyle := true
+
 val ghProject = "Particeep/"+projectName
 val ghUrl = url( "https://github.com/" + ghProject )
 
-homepage := Some( ghUrl )
+homepage  := Some( ghUrl )
 startYear := Some(2015)
-licenses += (
+licenses  += (
   "Two-clause BSD-style license",
   url( ghUrl + "/blob/master/LICENSE.txt" )
 )
@@ -30,6 +36,17 @@ developers := List(
   Developer("cvogt", "Jan Christopher Vogt", "@cvogt", url("https://github.com/cvogt")),
   Developer("driox", "Adrien Crovetto", "@Driox", url("https://github.com/Driox"))
 )
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+
+//publishTo := sonatypePublishTo.value
+publishTo := sonatypePublishToBundle.value
+
+Test / publishArtifact := false
+pomIncludeRepository := { _ => false }
+
+
 
 libraryDependencies ++=   Seq(
   "com.typesafe.play" %% "play-json" % "2.10.4",
@@ -62,12 +79,6 @@ Compile / doc / scalacOptions ++= Seq(
   "-diagrams", // requires graphviz
   "-groups"
 )
-
-publishTo := sonatypePublishTo.value
-
-publishMavenStyle := true
-Test / publishArtifact := false
-pomIncludeRepository := { _ => false }
 
 scalariformPreferences := scalariformPreferences.value
   .setPreference(AlignParameters, true)
